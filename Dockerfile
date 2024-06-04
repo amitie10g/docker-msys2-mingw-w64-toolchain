@@ -9,7 +9,7 @@ ENV MSYSTEM=${MSYSTEM}
 RUN setx path "C:\msys64\mingw64\bin;C:\msys64\mingw32\bin;%PATH%"
 
 SHELL ["bash", "-l", "-c"]
-RUN pacman -S --needed --noconfirm --noprogressbar --disable-download-timeout \
+RUN "pacman -S --needed --noconfirm --noprogressbar --disable-download-timeout \
     	make \
     	texinfo \
     	diffutils \
@@ -21,12 +21,12 @@ RUN pacman -S --needed --noconfirm --noprogressbar --disable-download-timeout \
     	intltool \
     	libtool \
     	python3 && \
-    rm -r /var/cache/pacman/pkg/*
+    rm -r /var/cache/pacman/pkg/*"
 
 FROM base AS toolchain
 ARG MSYSTEM
 ENV MSYSTEM=${MSYSTEM}
 ARG TOOLCHAIN
-RUN pacman -S --needed --noconfirm --noprogressbar --disable-download-timeout ${TOOLCHAIN} && rm -r /var/cache/pacman/pkg/*
+RUN "pacman -S --needed --noconfirm --noprogressbar --disable-download-timeout ${TOOLCHAIN} && rm -r /var/cache/pacman/pkg/*"
 
 CMD ["bash", "-l"]
