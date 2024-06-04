@@ -1,6 +1,12 @@
 name: Publish
 
 on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule: 
+   - cron: '30 12 * * 0'
   workflow_dispatch:
 
 jobs:
@@ -12,6 +18,16 @@ jobs:
         - 2019
     runs-on: windows-${{ matrix.version }}
     steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -35,46 +51,97 @@ jobs:
           docker pull ghcr.io/${{ github.repository_owner }}/msys2:ltsc${{ matrix.version }}
           docker tag ghcr.io/${{ github.repository_owner }}/msys2:ltsc${{ matrix.version }} ${{ secrets.DOCKERHUB_USERNAME }}/msys2:ltsc${{ matrix.version }}
 
-      - name: Build base
+      - name: Build gcc-ucrt
         shell: cmd
-        run: docker build --target base --build-arg VERSION="ltsc${{ matrix.version }}" .
-
-      - name: Build the rest
-        env:
-          COMPILERS: >-
-            gcc-ucrt
-            clang-i686
-            clang-x86_64
-            clang-aarch64
-            cross-gcc
-            cross-clang
-            gcc-i686
         run: >
-          ${{ env.COMPILERS }} -split ' ' | ForEach-Object -Parallel {
-            cmd /c
-            "docker build
-            --build-arg VERSION=ltsc${{ matrix.version }}
-            --build-arg TOOLCHAIN=mingw-w64-${_}-toolchain
-            --build-arg MSYSTEM=$(switch (${_}) {
-                "ucrt-x86_64"   { "UCRT64" }
-                "clang-i686"    { "CLANG32" }
-                "clang-x86_64"  { "CLANG64" }
-                "clang-aarch64" { "CLANGARM64" }
-                "cross"         { "MINGW64" }
-                "cross-clang"   { "CLANG64" }
-                "gcc-i686"      { "MINGW32" }
-                "gcc-x86_64"    { "MINGW64" }
-              })
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:${_}-ltsc${{ matrix.version }}
-            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:${_}-ltsc${{ matrix.version }}
-            $(if (${_} -eq "gcc-x86_64") {
-              -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }}
-              -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }}
-            })
-            ."
-          }
+            docker build
+            --build-arg VERSION="ltsc${{ matrix.version }}"
+            --build-arg TOOLCHAIN="mingw-w64-ucrt-x86_64-toolchain"
+            --build-arg MSYSTEM=UCRT64
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-ucrt-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-ucrt-ltsc${{ matrix.version }}
+            .
 
-      - name: Tag latest Windows version (Docker Hub)
+      - name: Build clang-i686
+        shell: cmd
+        run: >
+            docker build
+            --build-arg VERSION="ltsc${{ matrix.version }}"
+            --build-arg TOOLCHAIN="mingw-w64-clang-i686-toolchain"
+            --build-arg MSYSTEM=CLANG32
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-i686-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686-ltsc${{ matrix.version }}
+            .
+
+      - name: Build clang-x86_64
+        shell: cmd
+        run: >
+            docker build
+            --build-arg VERSION="ltsc${{ matrix.version }}"
+            --build-arg TOOLCHAIN="mingw-w64-clang-x86_64-toolchain"
+            --build-arg MSYSTEM=CLANG64
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-ltsc${{ matrix.version }}
+            .
+
+      - name: Build clang-aarch64
+        shell: cmd
+        run: >
+            docker build
+            --build-arg VERSION="ltsc${{ matrix.version }}"
+            --build-arg TOOLCHAIN="mingw-w64-clang-aarch64-toolchain"
+            --build-arg MSYSTEM=CLANGARM64
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-aarch64-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-aarch64-ltsc${{ matrix.version }}
+            .
+
+      - name: Build cross-gcc
+        shell: cmd
+        run: >
+            docker build
+            --build-arg VERSION="ltsc${{ matrix.version }}"
+            --build-arg TOOLCHAIN="mingw-w64-cross-toolchain"
+            --build-arg MSYSTEM=MINGW64
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-gcc-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-gcc-ltsc${{ matrix.version }}
+            .
+
+      - name: Build cross-clang
+        shell: cmd
+        run: >
+            docker build
+            --build-arg VERSION="ltsc${{ matrix.version }}"
+            --build-arg TOOLCHAIN="mingw-w64-cross-clang-toolchain"
+            --build-arg MSYSTEM=CLANG64
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-clang-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-clang-ltsc${{ matrix.version }}
+            .
+
+      - name: Build gcc-i686
+        shell: cmd
+        run: >
+            docker build
+            --build-arg VERSION="ltsc${{ matrix.version }}"
+            --build-arg TOOLCHAIN="mingw-w64-i686-toolchain"
+            --build-arg MSYSTEM=MINGW32
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-i686-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-i686-ltsc${{ matrix.version }}
+            .
+
+      - name: Build gcc-x86_64
+        shell: cmd
+        run: >
+            docker build
+            --build-arg VERSION="ltsc${{ matrix.version }}"
+            --build-arg TOOLCHAIN="mingw-w64-x86_64-toolchain"
+            --build-arg MSYSTEM=MINGW64
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:ltsc${{ matrix.version }}
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }}            
+            .
+
+      - name: Tag latest Windows version
         if: strategy.job-index == 0
         run: |
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64-ltsc${{ matrix.version }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64
@@ -97,7 +164,6 @@ jobs:
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:x86_64
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}
-
       - name: Tag latest Windows version (ghcr.io)
         if: strategy.job-index == 0
         run: |
