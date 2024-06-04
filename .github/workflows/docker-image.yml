@@ -1,12 +1,6 @@
 name: Publish
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-  schedule: 
-   - cron: '30 12 * * 0'
   workflow_dispatch:
 
 jobs:
@@ -18,7 +12,6 @@ jobs:
         - 2019
     runs-on: windows-${{ matrix.version }}
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -28,6 +21,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build gcc-ucrt
         shell: cmd
         run: >
@@ -35,7 +35,8 @@ jobs:
             --build-arg VERSION="ltsc${{ matrix.version }}"
             --build-arg TOOLCHAIN="mingw-w64-ucrt-x86_64-toolchain"
             --build-arg MSYSTEM=UCRT64
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-ucrt-ltsc${{ matrix.version }} 
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-ucrt-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-ucrt-ltsc${{ matrix.version }}
             .
 
       - name: Build clang-i686
@@ -45,7 +46,8 @@ jobs:
             --build-arg VERSION="ltsc${{ matrix.version }}"
             --build-arg TOOLCHAIN="mingw-w64-clang-i686-toolchain"
             --build-arg MSYSTEM=CLANG32
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-i686-ltsc${{ matrix.version }} 
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-i686-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686-ltsc${{ matrix.version }}
             .
 
       - name: Build clang-x86_64
@@ -55,7 +57,8 @@ jobs:
             --build-arg VERSION="ltsc${{ matrix.version }}"
             --build-arg TOOLCHAIN="mingw-w64-clang-x86_64-toolchain"
             --build-arg MSYSTEM=CLANG64
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64-ltsc${{ matrix.version }} 
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-ltsc${{ matrix.version }}
             .
 
       - name: Build clang-aarch64
@@ -65,7 +68,8 @@ jobs:
             --build-arg VERSION="ltsc${{ matrix.version }}"
             --build-arg TOOLCHAIN="mingw-w64-clang-aarch64-toolchain"
             --build-arg MSYSTEM=CLANGARM64
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-aarch64-ltsc${{ matrix.version }} 
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-aarch64-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-aarch64-ltsc${{ matrix.version }}
             .
 
       - name: Build cross-gcc
@@ -75,7 +79,8 @@ jobs:
             --build-arg VERSION="ltsc${{ matrix.version }}"
             --build-arg TOOLCHAIN="mingw-w64-cross-toolchain"
             --build-arg MSYSTEM=MINGW64
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-gcc-ltsc${{ matrix.version }} 
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-gcc-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-gcc-ltsc${{ matrix.version }}
             .
 
       - name: Build cross-clang
@@ -85,7 +90,8 @@ jobs:
             --build-arg VERSION="ltsc${{ matrix.version }}"
             --build-arg TOOLCHAIN="mingw-w64-cross-clang-toolchain"
             --build-arg MSYSTEM=CLANG64
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-clang-ltsc${{ matrix.version }} 
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-clang-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-clang-ltsc${{ matrix.version }}
             .
 
       - name: Build gcc-i686
@@ -96,6 +102,7 @@ jobs:
             --build-arg TOOLCHAIN="mingw-w64-i686-toolchain"
             --build-arg MSYSTEM=MINGW32
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-i686-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-i686-ltsc${{ matrix.version }}
             .
 
       - name: Build gcc-x86_64
@@ -107,9 +114,11 @@ jobs:
             --build-arg MSYSTEM=MINGW64
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:ltsc${{ matrix.version }}
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:ltsc${{ matrix.version }}
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }}
             .
 
-      - name: Tag latest Windows version
+      - name: Tag latest Windows version (Docker Hub)
         if: strategy.job-index == 0
         run: |
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64-ltsc${{ matrix.version }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64
@@ -132,6 +141,33 @@ jobs:
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:x86_64
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}
+
+      - name: Tag latest Windows version (ghcr.io)
+        if: strategy.job-index == 0
+        run: |
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-aarch64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-aarch64
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-gcc-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-gcc
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-clang-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-clang
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686-riscv64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686-riscv64
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-riscv64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-riscv64
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:i686-riscv64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:i686-riscv64
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:x86_64-riscv64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:x86_64-riscv64
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:x86_64-riscv64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:riscv64
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:ucrt-x86_64-riscv64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:ucrt-x86_64-riscv64
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-ucrt-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-ucrt
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-ucrt-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:ucrt
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-i686-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-i686
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-i686-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:i686
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:x86_64
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-ltsc${{ matrix.version }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}
+
       - name: Push
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }} --all-tags
-       
+        shell: cmd
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }} --all-tags
+          docker push ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }} --all-tags
