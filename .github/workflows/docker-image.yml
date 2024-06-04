@@ -37,7 +37,7 @@ jobs:
 
       - name: Build base
         shell: cmd
-        run: docker build --target base .
+        run: docker build --target base --build-arg VERSION="ltsc${{ matrix.version }}" .
 
       - name: Build the rest
         env:
