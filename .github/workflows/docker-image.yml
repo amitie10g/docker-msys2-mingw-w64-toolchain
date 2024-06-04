@@ -53,8 +53,8 @@ jobs:
           ${{ env.COMPILERS }} -split ' ' | ForEach-Object -Parallel {
             cmd /c
             "docker build
-            --build-arg VERSION="ltsc${{ matrix.version }}"
-            --build-arg TOOLCHAIN="mingw-w64-${_}-toolchain"
+            --build-arg VERSION=ltsc${{ matrix.version }}
+            --build-arg TOOLCHAIN=mingw-w64-${_}-toolchain
             --build-arg MSYSTEM=$(switch (${_}) {
                 "ucrt-x86_64"   { "UCRT64" }
                 "clang-i686"    { "CLANG32" }
