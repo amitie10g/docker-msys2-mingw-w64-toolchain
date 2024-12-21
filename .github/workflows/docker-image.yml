@@ -59,8 +59,9 @@ jobs:
             --build-arg VERSION="${{ matrix.WIN_VER }}"
             --build-arg TOOLCHAIN="mingw-w64-ucrt-x86_64-toolchain"
             --build-arg MSYSTEM=UCRT64
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-ucrt-${{ matrix.WIN_VER }}
-            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-ucrt-${{ matrix.WIN_VER }}
+            --tag=${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-ucrt-${{ matrix.WIN_VER }}
+            --tag=ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-ucrt-${{ matrix.WIN_VER }}
+            --isolation=hyperv
             .
 
       - name: Build clang-i686
