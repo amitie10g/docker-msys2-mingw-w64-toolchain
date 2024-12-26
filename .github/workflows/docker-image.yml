@@ -62,17 +62,6 @@ jobs:
             --isolation=hyperv
             .
 
-      - name: Build clang-i686
-        shell: cmd
-        run: >
-            docker build
-            --build-arg VERSION="${{ matrix.WIN_VER }}"
-            --build-arg TOOLCHAIN="mingw-w64-clang-i686-toolchain"
-            --build-arg MSYSTEM=CLANG32
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-i686-${{ matrix.WIN_VER }}
-            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686-${{ matrix.WIN_VER }}
-            .
-
       - name: Build clang-x86_64
         shell: cmd
         run: >
