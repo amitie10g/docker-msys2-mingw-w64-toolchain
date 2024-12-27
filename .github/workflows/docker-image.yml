@@ -71,6 +71,7 @@ jobs:
             --build-arg MSYSTEM=CLANG64
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64-${{ matrix.WIN_VER }}
             -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-${{ matrix.WIN_VER }}
+            --isolation=hyperv
             .
 
       - name: Build clang-aarch64
@@ -82,6 +83,7 @@ jobs:
             --build-arg MSYSTEM=CLANGARM64
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-aarch64-${{ matrix.WIN_VER }}
             -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-aarch64-${{ matrix.WIN_VER }}
+            --isolation=hyperv
             .
 
       - name: Build cross-gcc
@@ -93,6 +95,7 @@ jobs:
             --build-arg MSYSTEM=MINGW64
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-gcc-${{ matrix.WIN_VER }}
             -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-gcc-${{ matrix.WIN_VER }}
+            --isolation=hyperv
             .
 
       - name: Build cross-clang
@@ -104,6 +107,7 @@ jobs:
             --build-arg MSYSTEM=CLANG64
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-clang-${{ matrix.WIN_VER }}
             -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-clang-${{ matrix.WIN_VER }}
+            --isolation=hyperv
             .
 
       - name: Build gcc-i686
@@ -115,6 +119,7 @@ jobs:
             --build-arg MSYSTEM=MINGW32
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-i686-${{ matrix.WIN_VER }}
             -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-i686-${{ matrix.WIN_VER }}
+            --isolation=hyperv
             .
 
       - name: Build gcc-x86_64
@@ -127,7 +132,8 @@ jobs:
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:${{ matrix.WIN_VER }}
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }}
             -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:${{ matrix.WIN_VER }}
-            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }}            
+            -t ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }}
+            --isolation=hyperv
             .
 
       - name: Tag latest Windows version
