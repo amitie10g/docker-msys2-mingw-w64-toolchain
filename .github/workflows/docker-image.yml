@@ -13,9 +13,9 @@ jobs:
         - ltsc2025
         - ltsc2019
         - 20H2
-        - 2009
         - 2004
         - 1809
+            
     runs-on: windows-2025
     steps:
 
@@ -159,9 +159,6 @@ jobs:
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:x86_64
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}
-      - name: Tag latest Windows version (ghcr.io)
-        if: strategy.job-index == 0
-        run: |
           docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64
           docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang
           docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686
@@ -182,6 +179,50 @@ jobs:
           docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:x86_64
           docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc
           docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}
+
+      - name: Tag same images (20H2 -> 2009)
+        if: ${{ matrix.WIN_VER == '20H2' }}
+        run: |
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-i686-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-i686-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-aarch64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-aarch64-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-gcc-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-gcc-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-clang-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:cross-clang-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-i686-riscv64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-i686-riscv64-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64-riscv64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:clang-x86_64-riscv64-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:i686-riscv64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:i686-riscv64-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:x86_64-riscv64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:x86_64-riscv64-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:x86_64-riscv64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:riscv64-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:ucrt-x86_64-riscv64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:ucrt-x86_64-riscv64-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-ucrt-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-ucrt-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-ucrt-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:ucrt-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-i686-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-i686-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-i686-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:i686-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:x86_64-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-2009
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMG_NAME }}-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-aarch64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-aarch64-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-gcc-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-gcc-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-clang-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:cross-clang-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686-riscv64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-i686-riscv64-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-riscv64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:clang-x86_64-riscv64-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:i686-riscv64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:i686-riscv64-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:x86_64-riscv64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:x86_64-riscv64-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:x86_64-riscv64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:riscv64-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:ucrt-x86_64-riscv64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:ucrt-x86_64-riscv64-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-ucrt-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-ucrt-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-ucrt-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:ucrt-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-i686-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-i686-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-i686-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:i686-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:x86_64-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-2009
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}:gcc-x86_64-${{ matrix.WIN_VER }} ghcr.io/${{ github.repository_owner }}/${{ vars.IMG_NAME }}-2009
 
       - name: Push
         shell: cmd
